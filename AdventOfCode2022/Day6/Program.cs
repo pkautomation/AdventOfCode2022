@@ -1,108 +1,35 @@
 ﻿using SharedUtilities;
 
-var puzzle = FileReader.ReadFile();
+var puzzle = FileReader.ReadFile().ToArray()[0];
 
-string path = "/";
+var result = 0;
 
-Dictionary<string, int> fileSizesInFolder = new();
-List<string> pathsHistory = new List<string>();
-
-bool startedReadingLs = false;
-int parseRes = 0;
-
-foreach (var line in puzzle)
+// i was superlazy this time. this is part 2 only
+for (int i = 14; i < puzzle.Length; i++)
 {
-    if(startedReadingLs)
-    {
-        var valueToParse = line.Split(" ")[0];
-        // if its a hit
-        if (int.TryParse(valueToParse, out parseRes))
-        {
-            //if such key does not exist in dictionary
-            if(!fileSizesInFolder.TryGetValue(path, out _))
-            {
-                //add path and value to dictionary
-                fileSizesInFolder.Add(path, parseRes);
-            } else
-            {
-                // if this place was visited already we do not want to repeat
-                if (pathsHistory.FirstOrDefault(x => x == path) == null)
-                {
-                    // add another value (not first one!)
-                    fileSizesInFolder[path] += parseRes;
-                } else
-                {
-                    Console.WriteLine(path);
-                }
-            }
-            
-        }
-        else if (line.StartsWith("dir")) { 
-        } else
-        {
-            pathsHistory.Add(path);
-            startedReadingLs = false;
-        }
-    }
+    var substring = puzzle.Substring(i - 14, 14);
+    var sorted = new string(substring.OrderBy(x => x).ToArray());
 
-    if (line.StartsWith("$ cd"))
+    if (sorted[0] != sorted[1] &&
+        sorted[1] != sorted[2] &&
+        sorted[2] != sorted[3] &&
+        sorted[3] != sorted[4] &&
+        sorted[4] != sorted[5] && 
+        sorted[5] != sorted[6] && 
+        sorted[6] != sorted[7] && 
+        sorted[7] != sorted[8] && 
+        sorted[8] != sorted[9] && 
+        sorted[9] != sorted[10]&& 
+        sorted[10] != sorted[11]&& 
+        sorted[11] != sorted[12]&&
+        sorted[12] != sorted[13]
+        )
     {
-        pathsHistory.Add(path);
-        startedReadingLs = false;
-        ExecuteCdCommand(line.Split("cd")[1].Trim());
-    }
-    if (line.StartsWith("$ ls"))
-    {
-        startedReadingLs = true;
-    }
-
-}
-
-long score = 0;
-var failCounter = 0;
-foreach (var item in fileSizesInFolder)
-{
-
-    var res = CalculateFolderSizeWithSubfolders(item.Key);
-    if (res < 100000)
-    {
-        Console.WriteLine("path:" + item.Key + " has value " + res);
-        score += res;
-    } else
-    {
-        failCounter++;
+        result = i + 1;
+        break;
     }
 }
 
-Console.WriteLine(score + " " + failCounter + " results were too large");
+Console.WriteLine(result);
 
-var x = 1;
-
-void ExecuteCdCommand(string whereTo)
-{
-    if (whereTo == "..")
-    {
-        var lastWordLength = path.Split("/").Last().Length;
-        path = path.Substring(0, path.Length - lastWordLength - 1);
-        if (path == string.Empty) path = "/";
-    } else
-    {
-        path = $"{path}/{whereTo}".Replace("//", "/");
-        
-    }
-}
-
-long CalculateFolderSizeWithSubfolders(string pathToFile)
-{
-    long res = 0;
-
-    foreach (var item in fileSizesInFolder)
-    {
-        if (item.Key.Contains(pathToFile))
-        {
-            res += item.Value;
-        }
-    }
-
-    return res;
-}
+int x = 0;
